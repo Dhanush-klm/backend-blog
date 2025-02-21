@@ -1,2 +1,5 @@
 streamlit
+fastapi
 youtube-transcript-api
+pydantic
+uvicorn
