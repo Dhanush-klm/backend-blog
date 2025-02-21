@@ -34,7 +34,6 @@ def get_transcript(video_id):
     except Exception as e:
         return None, str(e)
 
-# FastAPI endpoint (can be used separately as an API)
 @app.post("/get-transcript")
 async def get_video_transcript(video: VideoURL):
     video_id = extract_video_id(video.url)
@@ -49,73 +48,27 @@ async def get_video_transcript(video: VideoURL):
     
     return {"transcript": transcript}
 
-# Streamlit UI
-def main():
-    st.title("YouTube Video Transcript Extractor")
-    
-    # Input field for YouTube URL
-    youtube_url = st.text_input("Enter YouTube Video URL:")
-    
-    if youtube_url:
-        video_id = extract_video_id(youtube_url)
-        
-        if video_id:
-            # Get transcript
-            with st.spinner("Fetching transcript..."):
-                transcript, error = get_transcript(video_id)
-                
-                if transcript:
-                    st.success("Transcript fetched successfully!")
-                    
-                    # Display transcript in an expandable box
-                    with st.expander("View Transcript", expanded=True):
-                        st.text_area("", value=transcript, height=400)
-                    
-                    # Add download button
-                    st.download_button(
-                        label="Download Transcript",
-                        data=transcript,
-                        file_name="transcript.txt",
-                        mime="text/plain"
-                    )
-                else:
-                    st.error(f"Error fetching transcript: {error}")
-        else:
-            st.error("Invalid YouTube URL. Please check the URL and try again.")
-    
-    # Add API documentation
-    st.markdown("""
-    ---
-    ### API Usage
-    This app also provides an API endpoint that you can use:
-    
-    **Endpoint:** `/get-transcript`
-    
-    **Method:** POST
-    
-    **Request Body:**
-    ```json
-    {
-        "url": "https://www.youtube.com/watch?v=your_video_id"
-    }
-    ```
-    
-    **Response:**
-    ```json
-    {
-        "transcript": "... transcript text ..."
-    }
-    ```
-    
-    ### Instructions:
-    1. Paste a YouTube video URL in the input field above
-    2. The app will fetch available transcript
-    3. You can view and download the transcript
-    
-    ### Note:
-    - Only videos with available transcripts/subtitles can be processed
-    - Some videos may have transcripts disabled by the creator
-    """)
+# Minimal Streamlit UI just to show it's working
+st.title("YouTube Transcript API")
+st.write("API is running! Use the /get-transcript endpoint for transcript extraction.")
+st.markdown("""
+### API Usage Example:
+```bash
+POST /get-transcript
+{
+    "url": "https://www.youtube.com/watch?v=your_video_id"
+}
+```
+""")
 
-if __name__ == "__main__":
-    main()
+# Optional: Add a simple test interface
+if st.checkbox("Show Test Interface"):
+    url = st.text_input("Test a YouTube URL:")
+    if url:
+        video_id = extract_video_id(url)
+        if video_id:
+            transcript, error = get_transcript(video_id)
+            if transcript:
+                st.text_area("Transcript:", transcript, height=200)
+            else:
+                st.error(f"Error: {error}")
